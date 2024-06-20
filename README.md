@@ -14,7 +14,7 @@ target system!
 
 ## read-production.log.rb
 
-Run ./read-production.log.rb to parse your production.log and output a bash or
+Run read-production.log.rb to parse your production.log and output a bash or
 zapi script.
 
 ```bash
@@ -37,8 +37,8 @@ Zapi example:
 
 ## run-zapi.rb (not included yet)
 
-Run ./run-zapi.rb to execute a zapi script.
+Run run-zapi.rb to execute a zapi script.
 
 ```
-./run-zapi.rb <script.zapi> <host> <api-token>
+./run-zapi.rb <my-script.zapi> <host> <api-token>
 ```
