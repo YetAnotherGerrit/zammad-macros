@@ -46,6 +46,7 @@ when "bash"
     puts "#!/bin/bash"
     puts "host=#{host}"
     puts "token=#{api_token}"
+    puts %q[#curl_args="--insecure"]
 when "zapi"
     puts "# Please execute this script with ./run-zapi.rb <script.zapi> <host> <api-token>"
 end
@@ -83,7 +84,7 @@ parsed_prodlog.each do |log|
         # Escape ' as this is used to quote the payload in the curl argument'
         payload.gsub!("'", "\\\\'")
         
-        puts %Q[curl -X #{request_type} -H "Authorization: Token token=${token}" -H 'content-type: application/json' ${host}#{endpoint} -d '#{payload}']
+        puts %Q[curl ${curl_args} -X #{request_type} -H "Authorization: Token token=${token}" -H 'content-type: application/json' ${host}#{endpoint} -d '#{payload}']
     when "zapi"
         puts "#{request_type} #{host}#{endpoint} #{payload}"
     end
