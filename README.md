@@ -35,7 +35,7 @@ Zapi example:
 ./read-production.log.rb zapi > my-script.zapi
 ```
 
-## run-zapi.rb (not included yet)
+## run-zapi.rb
 
 Run run-zapi.rb to execute a zapi script.
 
