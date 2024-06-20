@@ -44,6 +44,8 @@ file_prodlog = File.read(production_log)
 case script_type
 when "bash"
     puts "#!/bin/bash"
+    puts "host=#{host}"
+    puts "token=#{token}"
 when "zapi"
     puts "# Please execute this script with ./run-zapi.rb <script.zapi> <host> <api-token>"
 end
@@ -81,7 +83,7 @@ parsed_prodlog.each do |log|
         # Escape ' as this is used to quote the payload in the curl argument'
         payload.gsub!("'", "\\\\'")
         
-        puts "curl -X #{request_type} -H 'Authorization: Token token=#{api_token}' -H 'content-type: application/json' #{host}#{endpoint} -d '#{payload}'"
+        puts %Q[curl -X #{request_type} -H "Authorization: Token token=${token}" -H 'content-type: application/json' ${host}#{endpoint} -d '#{payload}']Q
     when "zapi"
         puts "#{request_type} #{host}#{endpoint} #{payload}"
     end
