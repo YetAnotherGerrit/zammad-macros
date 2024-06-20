@@ -53,12 +53,14 @@ end
 
 ### PARSER
 
-parsed_prodlog = file_prodlog.scan(/(#\d+-\d+)\]  INFO -- : Started (PUT|POST|DELETE|PATCH) "(.*?)".*?\1\]  INFO -- :   Parameters: ({.*?}$)/m)
+parsed_prodlog = file_prodlog.scan(/(#\d+-\d+)\]  INFO -- : Started (PUT|POST|DELETE|PATCH) "(.*?)".*?\1\]  INFO -- :   Parameters: ({.*?})$.*?\1\]  INFO -- : Completed (\d+)/m)
 
 parsed_prodlog.each do |log|
     request_type = log[1]
     endpoint = log[2]
     payload = log[3]
+    return_code = log[4]
+    next if return_code[0] != "2"
 
     ### Thank you https://gist.github.com/gene1wood/bd8159ad90b0799d9436
 
@@ -76,6 +78,8 @@ parsed_prodlog.each do |log|
 
     # Transform object string object value delimiter to colon delimiter
     payload.gsub!(/([{,]\s*)(".+?"|[0-9]+\.?[0-9]*)\s*=>/, '\1\2:')
+
+    payload.gsub!(':nil', ':"nil"')
 
     JSON.parse(payload)
 
