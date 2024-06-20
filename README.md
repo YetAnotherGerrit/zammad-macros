@@ -1,3 +1,8 @@
+# ⚠️ DANGER ZONE ⚠️
+
+The whole idea of this project is just a proof of concept (yet). Don't use that
+in any productive environment without knowing exactly what is happening here!
+
 # zammad-macros
 This is a set of scripts to replay configurations done in a Zammad instances
 based of what has been logged in a `production.log`. Either by generating a
@@ -37,8 +42,3 @@ Run ./run-zapi.rb to execute a zapi script.
 ```
 ./run-zapi.rb <script.zapi> <host> <api-token>
 ```
-
-# ⚠️ DANGER ZONE ⚠️
-
-The whole idea of this project is just a proof of concept (yet). Don't use that
-in any productive environment without knowing exactly what is happening here!
