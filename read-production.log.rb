@@ -60,7 +60,7 @@ parsed_prodlog.each do |log|
     endpoint = log[2]
     payload = log[3]
     return_code = log[4]
-    next if return_code[0] != "2"
+    next unless return_code.match?(/200|201/)
 
     ### Thank you https://gist.github.com/gene1wood/bd8159ad90b0799d9436
 
