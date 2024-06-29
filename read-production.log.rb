@@ -53,16 +53,19 @@ end
 
 ### PARSER
 
-parsed_prodlog = file_prodlog.scan(/(#\d+-\d+)\]  INFO -- : Started (PUT|POST|DELETE|PATCH) "(.*?)".*?\1\]  INFO -- :   Parameters: ({.*?})$.*?\1\]  INFO -- : Completed (\d+)/m)
+
+parsed_prodlog = file_prodlog.scan(/(#\d+-\d+)\]  INFO -- : Started (PUT|POST|DELETE|PATCH) "(.*?)"(?:.*?\1\]  INFO -- :   Parameters: ({.*?})$)?.*?\1\]  INFO -- : Completed (\d+)/m)
 
 parsed_prodlog.each do |log|
     request_type = log[1]
     endpoint = log[2]
     payload = log[3]
     return_code = log[4]
+
     next unless return_code.match?(/200|201/)
 
     ### Thank you https://gist.github.com/gene1wood/bd8159ad90b0799d9436
+    payload = "{}" unless payload
 
     # Transform object string symbols to quoted strings
     payload.gsub!(/([{,]\s*):([^>\s]+)\s*=>/, '\1"\2"=>')
