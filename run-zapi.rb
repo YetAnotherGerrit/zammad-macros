@@ -2,6 +2,10 @@
 
 require 'net/http'
 
+APP_RESTART_ENDPOINT = '/api/v1/object_manager_attributes_execute_migrations'
+AVAILABLE_ENDPOINT = '/api/v1/available'
+WAIT_FOR_RESTART = 2
+
 def error_arguments
     puts "ERROR: wrong arguments"
     puts ""
@@ -70,5 +74,28 @@ Net::HTTP.start(uri.hostname, uri.port) do |http|
         else
             puts "==> Successful: #{res.code}"
         end
+
+        if parsed_endpoint == APP_RESTART_ENDPOINT
+            puts "Zammad needs to be restarted, if APP_RESTART_CMD is not configured, do that manually please."
+            print "Waiting for shutdown"
+            while true
+                req = Net::HTTP::Get.new(AVAILABLE_ENDPOINT)
+                res = http.request(req)
+                print "."
+                break if res.code != "200"
+                sleep WAIT_FOR_RESTART
+            end
+            puts " ok"
+
+            print "Waiting for restart"
+            while true
+                req = Net::HTTP::Get.new(AVAILABLE_ENDPOINT)
+                res = http.request(req)
+                print "."
+                break if res.code == "200"
+                sleep WAIT_FOR_RESTART
+            end
+            puts " ok"
+        end 
     end
 end
