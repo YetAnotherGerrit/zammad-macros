@@ -15,6 +15,17 @@ def error_arguments
     exit 1
 end
 
+def wait_for_available(http,online)
+    while true
+        req = Net::HTTP::Get.new(AVAILABLE_ENDPOINT)
+        res = http.request(req)
+        print "."
+        break if online == true && res.code == "200"
+        break if online == false && res.code != "200"
+        sleep WAIT_FOR_RESTART
+    end
+end
+
 if ARGV.length != 3 
     error_arguments
 end
@@ -75,26 +86,14 @@ Net::HTTP.start(uri.hostname, uri.port) do |http|
             puts "==> Successful: #{res.code}"
         end
 
-        if parsed_endpoint == APP_RESTART_ENDPOINT
+        if parsed_endpoint == APP_RESTART_ENDPOINT && parsed_payload == "{}"
             puts "Zammad needs to be restarted, if APP_RESTART_CMD is not configured, do that manually please."
             print "Waiting for shutdown"
-            while true
-                req = Net::HTTP::Get.new(AVAILABLE_ENDPOINT)
-                res = http.request(req)
-                print "."
-                break if res.code != "200"
-                sleep WAIT_FOR_RESTART
-            end
+            wait_for_available(http,false)
             puts " ok"
 
             print "Waiting for restart"
-            while true
-                req = Net::HTTP::Get.new(AVAILABLE_ENDPOINT)
-                res = http.request(req)
-                print "."
-                break if res.code == "200"
-                sleep WAIT_FOR_RESTART
-            end
+            wait_for_available(http,true)
             puts " ok"
         end 
     end
