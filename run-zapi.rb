@@ -35,66 +35,68 @@ host = ARGV.shift
 api_token = ARGV.shift
 
 uri = URI(host)
+http = Net::HTTP.start(uri.hostname, uri.port)
 
-Net::HTTP.start(uri.hostname, uri.port) do |http|
-    File.readlines(script, chomp: true).each do |line|
-        next if line.start_with?("#")
+File.readlines(script, chomp: true).each do |line|
+    next if line.start_with?("#")
 
-        if line.match?(/^(HOST|TOKEN)/)
-            result = line.match(/^(HOST|TOKEN) (.*)/)
+    if line.match?(/^(HOST|TOKEN)/)
+        result = line.match(/^(HOST|TOKEN) (.*)/)
 
-            case result[1].downcase
-            when "host"
-                host = result[2]
-            when "token"
-                api_token = result[2]
-            end
+        case result[1].downcase
+        when "host"
+            host = result[2]
+        when "token"
+            api_token = result[2]
         end
 
-        parsed_line = line.match(/(PUT|POST|DELETE|PATCH|GET) ([^ ]+) (.*)/)
-        parsed_request_type = parsed_line[1].downcase
-        parsed_endpoint = parsed_line[2]
-        parsed_payload = parsed_line[3]
-
-        puts line
-
-        req = ''
-
-        case parsed_request_type
-        when "post"
-            req = Net::HTTP::Post.new(parsed_endpoint)
-        when "put"
-            req = Net::HTTP::Put.new(parsed_endpoint)
-        when "get"
-            req = Net::HTTP::Get.new(parsed_endpoint)
-        when "delete"
-            req = Net::HTTP::Delete.new(parsed_endpoint)
-        when "patch"
-            req = Net::HTTP::Patch.new(parsed_endpoint)
-        end
-
-        req['Authorization'] = "Token token=#{api_token}"
-        req["Content-Type"] = "application/json"
-        req.body = parsed_payload
-
-        res = http.request(req)
-
-        unless res.code.match?(/200|201/)
-            puts "==> ERROR #{res.code}: #{res.body}"
-            exit 1
-        else
-            puts "==> Successful: #{res.code}"
-        end
-
-        if parsed_endpoint == APP_RESTART_ENDPOINT && parsed_payload == "{}"
-            puts "Zammad needs to be restarted, if APP_RESTART_CMD is not configured, do that manually please."
-            print "Waiting for shutdown"
-            wait_for_available(http,false)
-            puts " ok"
-
-            print "Waiting for restart"
-            wait_for_available(http,true)
-            puts " ok"
-        end 
+        uri = URI(host)
+        http = Net::HTTP.start(uri.hostname, uri.port)
     end
+
+    parsed_line = line.match(/(PUT|POST|DELETE|PATCH|GET) ([^ ]+) (.*)/)
+    parsed_request_type = parsed_line[1].downcase
+    parsed_endpoint = parsed_line[2]
+    parsed_payload = parsed_line[3]
+
+    puts line
+
+    req = ''
+
+    case parsed_request_type
+    when "post"
+        req = Net::HTTP::Post.new(parsed_endpoint)
+    when "put"
+        req = Net::HTTP::Put.new(parsed_endpoint)
+    when "get"
+        req = Net::HTTP::Get.new(parsed_endpoint)
+    when "delete"
+        req = Net::HTTP::Delete.new(parsed_endpoint)
+    when "patch"
+        req = Net::HTTP::Patch.new(parsed_endpoint)
+    end
+
+    req['Authorization'] = "Token token=#{api_token}"
+    req["Content-Type"] = "application/json"
+    req.body = parsed_payload
+
+    res = http.request(req)
+
+    unless res.code.match?(/200|201/)
+        puts "==> ERROR #{res.code}: #{res.body}"
+        exit 1
+    else
+        puts "==> Successful: #{res.code}"
+    end
+
+    if parsed_endpoint == APP_RESTART_ENDPOINT && parsed_payload == "{}"
+        puts "Zammad needs to be restarted, if APP_RESTART_CMD is not configured, do that manually please."
+        print "Waiting for shutdown"
+        wait_for_available(http,false)
+        puts " ok"
+
+        print "Waiting for restart"
+        wait_for_available(http,true)
+        puts " ok"
+    end 
 end
