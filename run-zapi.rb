@@ -9,11 +9,20 @@ WAIT_FOR_RESTART = 2
 def error_arguments
     puts "ERROR: wrong arguments"
     puts ""
-    puts "Please use #{__FILE__} <script> <host> <api-token>"
+    puts "Please use #{__FILE__} <script> <optional:host> <optional:api-token>"
     puts ""
     puts "- example: #{__FILE__} my-script.zapi http://localhost token123"
     exit 1
 end
+
+def error_missinghostandtoken
+    puts "ERROR: missing host/token"
+    puts ""
+    puts "Please use #{__FILE__} <script> <optional:host> <optional:api-token>"
+    puts "or provide host/token in the script using HOST=localhost TOKEN=token123!"
+    exit 1
+end
+
 
 def wait_for_available(http,online)
     while true
@@ -26,16 +35,13 @@ def wait_for_available(http,online)
     end
 end
 
-if ARGV.length != 3 
+if ARGV.length != 1 && ARGV.length != 3 
     error_arguments
 end
 
 script = ARGV.shift
 host = ARGV.shift
 api_token = ARGV.shift
-
-uri = URI(host)
-http = Net::HTTP.start(uri.hostname, uri.port)
 
 File.readlines(script, chomp: true).each do |line|
     next if line.start_with?("#")
@@ -50,6 +56,13 @@ File.readlines(script, chomp: true).each do |line|
             api_token = result[2]
         end
 
+        uri = URI(host)
+        http = Net::HTTP.start(uri.hostname, uri.port)
+    elsif (host.nil? || host.empty?) && (api_token.nil? || api_token.empty?)
+        error_missinghostandtoken
+    end
+
+    unless http
         uri = URI(host)
         http = Net::HTTP.start(uri.hostname, uri.port)
     end

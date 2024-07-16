@@ -2,41 +2,6 @@
 
 require 'json'
 
-def error_arguments
-    puts "ERROR: wrong arguments"
-    puts ""
-    puts "Please use #{__FILE__} <bash or zapi> <bash:host> <bash:api-token> <optional:path/to/poduction.log>"
-    puts ""
-    puts "- example: #{__FILE__} bash http://localhost token123 > my-script.sh"
-    puts "- example: #{__FILE__} zapi > my-script.zapi"
-    puts ""
-    puts "Always check the resulting script before executing! You may want to make adjustments."
-    exit 1
-end
-
-case ARGV.first
-when "bash"
-    if ARGV.length < 3 || ARGV.length > 4
-        error_arguments
-    else
-        script_type = ARGV.shift
-        host = ARGV.shift
-        api_token = ARGV.shift
-        production_log = ARGV.shift || '/var/log/zammad/production.log'
-    end
-when "zapi"
-    if ARGV.length < 1 || ARGV.length > 2
-        error_arguments
-    else
-        script_type = ARGV.shift
-        host = ''
-        api_token = ''
-        production_log = ARGV.shift || '/var/log/zammad/production.log'
-    end
-else
-    error_arguments
-end        
-
 IGNORE_ENDPOINTS = [
     '/api/v1/signshow',
     '/api/v1/signin',
@@ -46,22 +11,14 @@ IGNORE_ENDPOINTS = [
     '/api/v1/tickets/selector',
     '/api/v1/upload_caches'
 ]
+
+production_log = ARGV.shift || '/var/log/zammad/production.log'
 file_prodlog = File.read(production_log)
 
-### HEADER
-
-case script_type
-when "bash"
-    puts "#!/bin/bash"
-    puts "host=#{host}"
-    puts "token=#{api_token}"
-    puts %q[#curl_args="--insecure"]
-when "zapi"
-    puts "# Please execute this script with ./run-zapi.rb <script.zapi> <host> <api-token>"
-end
-
-### PARSER
-
+puts "# Please execute this script with ./run-zapi.rb <script.zapi> <optional:host> <optional:api-token>"
+puts "# To provide host/api-token use either command line parameters or hash out the following two lines:"
+puts "#HOST=localhost"
+puts "#TOKEN=1234567890"
 
 parsed_prodlog = file_prodlog.scan(/(#\d+-\d+)\]  INFO -- : Started (PUT|POST|DELETE|PATCH) "(.*?)"(?:.*?\1\]  INFO -- :   Parameters: ({.*?})$)?.*?\1\]  INFO -- : Completed (\d+)/m)
 
@@ -92,18 +49,9 @@ parsed_prodlog.each do |log|
     # Transform object string object value delimiter to colon delimiter
     payload.gsub!(/([{,]\s*)(".+?"|[0-9]+\.?[0-9]*)\s*=>/, '\1\2:')
 
-    payload.gsub!(':nil', ':"nil"')
     payload.gsub!(':nil', ':null')
 
     JSON.parse(payload)
 
-    case script_type
-    when "bash"
-        # Escape ' as this is used to quote the payload in the curl argument'
-        payload.gsub!("'", "\\\\'")
-        
-        puts %Q[curl ${curl_args} -X #{request_type} -H "Authorization: Token token=${token}" -H 'content-type: application/json' ${host}#{endpoint} -d '#{payload}']
-    when "zapi"
-        puts "#{request_type} #{host}#{endpoint} #{payload}"
-    end
+    puts "#{request_type} #{endpoint} #{payload}"
 end

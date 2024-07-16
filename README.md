@@ -5,31 +5,21 @@ in any productive environment without knowing exactly what is happening here!
 
 # zammad-macros
 This is a set of scripts to replay configurations done in a Zammad instances
-based of what has been logged in a `production.log`. Either by generating a
-bash script with a bunch of `curl` commands or with a zapi script that can be
-replayed with `run-zapi.rb`.
+based of what has been logged in a `production.log`.
 
 ⚠️ Always check the scripts before you run them. Id's may be different in the
 target system!
 
 ## read-production.log.rb
 
-Run read-production.log.rb to parse your production.log and output a bash or
-zapi script.
+Run read-production.log.rb to parse your production.log and output a zapi
+script.
 
 ```bash
-./read-production.log.rb <bash or zapi> <bash:host> <bash:api-token> <optional:path/to/poduction.log>
+./read-production.log.rb <optional:path/to/poduction.log>
 ```
 
 ### Examples
-
-Bash example:
-
-```bash
-./read-production.log.rb bash http://localhost token123 > my-script.sh
-```
-
-Zapi example:
 
 ```bash
 ./read-production.log.rb zapi > my-script.zapi
