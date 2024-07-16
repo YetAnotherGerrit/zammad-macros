@@ -19,16 +19,21 @@ script.
 ./read-production.log.rb <optional:path/to/poduction.log>
 ```
 
-### Examples
+### Example
+
+With todays production.log in its package default location:
 
 ```bash
-./read-production.log.rb zapi > my-script.zapi
+./read-production.log.rb > my-script.zapi
 ```
 
 ## run-zapi.rb
 
 Run run-zapi.rb to execute a zapi script.
 
+```bash
+./run-zapi.rb <my-script.zapi> <optional:host> <optional:api-token>
 ```
-./run-zapi.rb <my-script.zapi> <host> <api-token>
-```
+
+You can also provide HOST/TOKEN within the zapi-script. You can even include
+instructions for more than one host within the same zapi-script this way.
