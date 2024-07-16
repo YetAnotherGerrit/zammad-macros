@@ -93,6 +93,7 @@ parsed_prodlog.each do |log|
     payload.gsub!(/([{,]\s*)(".+?"|[0-9]+\.?[0-9]*)\s*=>/, '\1\2:')
 
     payload.gsub!(':nil', ':"nil"')
+    payload.gsub!(':nil', ':null')
 
     JSON.parse(payload)
 
