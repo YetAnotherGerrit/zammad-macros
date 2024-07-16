@@ -37,6 +37,15 @@ else
     error_arguments
 end        
 
+IGNORE_ENDPOINTS = [
+    '/api/v1/signshow',
+    '/api/v1/signin',
+    '/api/v1/users/preferences',
+    '/api/v1/taskbar',
+    '/api/v1/recent_view',
+    '/api/v1/tickets/selector',
+    '/api/v1/upload_caches'
+]
 file_prodlog = File.read(production_log)
 
 ### HEADER
@@ -63,6 +72,7 @@ parsed_prodlog.each do |log|
     return_code = log[4]
 
     next unless return_code.match?(/200|201/)
+    next if IGNORE_ENDPOINTS.any? { |str| endpoint.start_with?(str) }
 
     ### Thank you https://gist.github.com/gene1wood/bd8159ad90b0799d9436
     payload = "{}" unless payload
