@@ -34,9 +34,6 @@ parsed_prodlog.each do |log|
     ### Thank you https://gist.github.com/gene1wood/bd8159ad90b0799d9436
     payload = "{}" unless payload
 
-    # Remove , ""=>[] from payloads as it seems to serve no purpose, but messes with some of the following regexes
-    payload.gsub!(/, ""=>\[\]/, '')
-
     # Transform object string symbols to quoted strings
     payload.gsub!(/([{,]\s*):([^>\s]+)\s*=>/, '\1"\2"=>')
 
@@ -50,7 +47,7 @@ parsed_prodlog.each do |log|
     payload.gsub!(/([\[,]\s*):([^,\]\s]+)/, '\1"\2"')
 
     # Transform object string object value delimiter to colon delimiter
-    payload.gsub!(/([{,]\s*)(".+?"|[0-9]+\.?[0-9]*)\s*=>/, '\1\2:')
+    payload.gsub!(/([{,]\s*)(".*?"|[0-9]+\.?[0-9]*)\s*=>/, '\1\2:')
 
     payload.gsub!(':nil', ':null')
 
