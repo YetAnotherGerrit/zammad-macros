@@ -17,7 +17,7 @@ file_prodlog = File.read(production_log)
 
 puts "# Please execute this script with ./run-zapi.rb <script.zapi> <optional:host> <optional:api-token>"
 puts "# To provide host/api-token use either command line parameters or hash out the following two lines:"
-puts "#HOST=localhost"
+puts "#HOST=http://localhost"
 puts "#TOKEN=1234567890"
 
 parsed_prodlog = file_prodlog.scan(/(#\d+-\d+)\]  INFO -- : Started (PUT|POST|DELETE|PATCH) "(.*?)"(?:.*?\1\]  INFO -- :   Parameters: ({.*?})$)?.*?\1\]  INFO -- : Completed (\d+)/m)

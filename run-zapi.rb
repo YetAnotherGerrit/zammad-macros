@@ -57,14 +57,14 @@ File.readlines(script, chomp: true).each do |line|
         end
 
         uri = URI(host)
-        http = Net::HTTP.start(uri.hostname, uri.port)
+        http = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => (uri.scheme == 'https'))
     elsif (host.nil? || host.empty?) && (api_token.nil? || api_token.empty?)
         error_missinghostandtoken
     end
 
     unless http
         uri = URI(host)
-        http = Net::HTTP.start(uri.hostname, uri.port)
+        http = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => (uri.scheme == 'https'))
     end
 
     parsed_line = line.match(/(PUT|POST|DELETE|PATCH|GET) ([^ ]+) (.*)/)
